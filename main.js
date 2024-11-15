@@ -12,7 +12,7 @@ const CONFIG = {
     BETWEEN_REQUESTS: 1000,
     BETWEEN_TASKS: 2000,
     BETWEEN_ACCOUNTS: 5000,
-    CHECK_INTERVAL: 300000,
+    CHECK_INTERVAL: 24 * 60 * 60 * 1000,
   },
   HEADERS: {
     Accept: "application/json, text/plain, */*",
@@ -105,7 +105,7 @@ class FarcasterBot {
       return response.data;
     } catch (error) {
       logger.error(
-        `${colors.error}Error in request to ${endpoint}: ${error.message}${colors.reset}`
+        `${colors.error}Request failed: ${error.message}${colors.reset}`
       );
       return null;
     }
@@ -250,9 +250,9 @@ class FarcasterBot {
     if (Array.isArray(response) && response.length > 0) {
       const taskInfo = response[0];
       logger.info(
-        `${colors.taskInProgress}Task ${taskId} status: ${JSON.stringify(
-          taskInfo
-        )}${colors.reset}`
+        `${colors.taskInProgress}Task ${taskId} status: ${
+          taskInfo.clickStatus === 1 ? "Ready to claim" : "In progress"
+        }${colors.reset}`
       );
       return taskInfo;
     }
