@@ -304,6 +304,8 @@ class FarcasterBot {
         continue;
       }
 
+      await this.delay(CONFIG.DELAYS.BETWEEN_REQUESTS); // Tambahkan delay sebelum click
+
       const clicked = await this.clickTask(taskId, taskName, account);
       if (clicked) {
         await this.delay(CONFIG.DELAYS.BETWEEN_REQUESTS);
@@ -345,6 +347,10 @@ class FarcasterBot {
         `${colors.success}Total points gained from ${taskType} tasks: ${totalPointsGained}${colors.reset}`
       );
     }
+  }
+
+  async delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   async processTasks(account) {
