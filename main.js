@@ -304,7 +304,7 @@ class FarcasterBot {
         continue;
       }
 
-      await this.delay(CONFIG.DELAYS.BETWEEN_REQUESTS); // Tambahkan delay sebelum click
+      await this.delay(CONFIG.DELAYS.BETWEEN_REQUESTS);
 
       const clicked = await this.clickTask(taskId, taskName, account);
       if (clicked) {
