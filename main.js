@@ -6,7 +6,7 @@ const CountdownTimer = require("./config/countdown");
 const logger = require("./config/logger");
 
 const CONFIG = {
-  BASE_URL: "https://api.farcasterdog.xyz/api",
+  BASE_URL: "https://api.fardog.xyz/api",
   COOKIE_FILE: "data.txt",
   DELAYS: {
     BETWEEN_REQUESTS: 1000,
@@ -38,6 +38,7 @@ const ENDPOINTS = {
   CLICK_TASK: "/user/reg_click_status",
   UPDATE_TASK: "/user/task/task_daily/select_updated_task",
   UPDATE_POINTS: "/user/update_point",
+  OPEN_MAGIC_CHEST: "/farcaster_dog/open_magic_chest",
 };
 
 class FarcasterAccount {
@@ -104,9 +105,16 @@ class FarcasterBot {
       const response = await axios(config);
       return response.data;
     } catch (error) {
-      logger.error(
-        `${colors.error}Request failed: ${error.message}${colors.reset}`
-      );
+      if (
+        !(
+          endpoint === ENDPOINTS.OPEN_MAGIC_CHEST &&
+          error.response?.status === 400
+        )
+      ) {
+        logger.error(
+          `${colors.error}Request failed: ${error.message}${colors.reset}`
+        );
+      }
       return null;
     }
   }
@@ -341,6 +349,7 @@ class FarcasterBot {
 
   async processTasks(account) {
     logger.info(`${colors.info}Starting Tasks${colors.reset}`);
+    await this.openMagicChest(account);
 
     const dailyTasks = await this.getDailyTasks(account);
     if (dailyTasks?.length) {
@@ -362,8 +371,30 @@ class FarcasterBot {
     logger.info(`${colors.info}Tasks Completed${colors.reset}`);
   }
 
-  async delay(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+  async openMagicChest(account) {
+    try {
+      const result = await this.makeRequest(
+        "POST",
+        ENDPOINTS.OPEN_MAGIC_CHEST,
+        null,
+        account
+      );
+
+      if (result?.bonus) {
+        logger.success(
+          `${colors.success}Opened magic chest! Got ${result.bonus} bonus${colors.reset}`
+        );
+        return;
+      }
+
+      logger.info(
+        `${colors.info}Magic chest is currently in cooldown${colors.reset}`
+      );
+    } catch (error) {
+      logger.info(
+        `${colors.info}Magic chest is currently in cooldown${colors.reset}`
+      );
+    }
   }
 
   async start() {
